@@ -22,10 +22,9 @@ services:
     depends_on:
       - php
       - redis
-      - mysql
+      - db
       - laravel-queue
       - laravel-cron
-      - phpmyadmin
       - mailhog
     networks:
       - laravel
@@ -47,24 +46,55 @@ services:
     networks:
       - laravel
 
-  mysql:
-    image: mariadb:10.6
-    container_name: mysql
+  db:
+    container_name: postgres-db
+    image: supabase/postgres:15.1.0.90
+    healthcheck:
+      test: pg_isready -U postgres -h localhost
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - log_min_messages=fatal # prevents Realtime polling queries from appearing in logs
     restart: unless-stopped
-    tty: true
     ports:
-      - 3307:3306
+      # Pass down internal port because it's set dynamically by other services
+      - ${DB_PORT}:${DB_PORT}
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
+      POSTGRES_HOST: /var/run/postgresql
+      PGPORT: ${DB_PORT}
+      DB_PORT: ${DB_PORT}
+      PGPASSWORD: ${DB_PASSWORD}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATABASE: ${DB_DATABASE}
+      POSTGRES_DB: ${DB_DATABASE}
     volumes:
-      - ./docker/mysql:/var/lib/mysql
+      - ./docker/postgres:/var/lib/postgresql/data:Z
     networks:
       - laravel
+
+  # mysql:
+  #   image: mariadb:10.6
+  #   container_name: mysql
+  #   restart: unless-stopped
+  #   tty: true
+  #   ports:
+  #     - 3307:3306
+  #   environment:
+  #     MYSQL_DATABASE: ${DB_DATABASE}
+  #     MYSQL_USER: ${DB_USERNAME}
+  #     MYSQL_PASSWORD: ${DB_PASSWORD}
+  #     MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+  #     SERVICE_TAGS: dev
+  #     SERVICE_NAME: mysql
+  #   volumes:
+  #     - ./docker/mysql:/var/lib/mysql
+  #   networks:
+  #     - laravel
     
   redis:
     image: redis:alpine
@@ -88,7 +118,7 @@ services:
       - ./src:/var/www/html
       - .env:/var/www/html/.env
     depends_on:
-      - mysql
+      - db
     working_dir: /var/www/html
     entrypoint: ['php', '/var/www/html/artisan', 'schedule:work']
     networks:
@@ -107,7 +137,7 @@ services:
       - ./src:/var/www/html
       - .env:/var/www/html/.env
     depends_on:
-      - mysql
+      - db
     working_dir: /var/www/html
     entrypoint: ['php', '/var/www/html/artisan', 'queue:work']
     networks:
@@ -124,21 +154,21 @@ services:
     networks:
       - laravel
 
-  phpmyadmin:
-    image: phpmyadmin:5.2.0
-    container_name: phpmyadmin
-    environment:
-      PMA_ARBITRARY: 1
-      PMA_HOST: ${DB_HOST}
-      PMA_USER: ${DB_USERNAME}
-      PMA_PASSWORD: ${DB_PASSWORD}
-      PMA_PORT: ${DB_PORT}
-    depends_on:
-      - mysql
-    ports:
-      - 8888:80
-    networks:
-      - laravel
+  # phpmyadmin:
+  #   image: phpmyadmin:5.2.0
+  #   container_name: phpmyadmin
+  #   environment:
+  #     PMA_ARBITRARY: 1
+  #     PMA_HOST: ${DB_HOST}
+  #     PMA_USER: ${DB_USERNAME}
+  #     PMA_PASSWORD: ${DB_PASSWORD}
+  #     PMA_PORT: ${DB_PORT}
+  #   depends_on:
+  #     - mysql
+  #   ports:
+  #     - 8888:80
+  #   networks:
+  #     - laravel
 
   laravel-migrate-seed:
     build:
@@ -153,7 +183,7 @@ services:
       - ./src:/var/www/html
       - .env:/var/www/html/.env
     depends_on:
-      - mysql
+      - db
     profiles: ["migrate-seed"]
     working_dir: /var/www/html
     entrypoint: ["/bin/sh","-c"]
@@ -198,7 +228,7 @@ services:
       - ./src:/var/www/html
       - .env:/var/www/html/.env
     depends_on:
-      - mysql
+      - db
     working_dir: /var/www/html
     profiles: ["artisan"]
     entrypoint: ['php', '/var/www/html/artisan']

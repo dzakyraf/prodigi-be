@@ -23,7 +23,9 @@ RUN echo "php_admin_flag[log_errors] = on" >> /usr/local/etc/php-fpm.d/www.conf
 
 # Installing php extensions
 RUN apk update && apk upgrade
-RUN docker-php-ext-install pdo pdo_mysql bcmath
+RUN apk add libpq-dev \
+    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
+    && docker-php-ext-install pdo pdo_pgsql pgsql bcmath
 
 # Installing redis extension
 RUN mkdir -p /usr/src/php/ext/redis \
