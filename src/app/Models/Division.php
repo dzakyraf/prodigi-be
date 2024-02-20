@@ -17,7 +17,7 @@ class Division extends Model
      * Summary of table
      * @var string
      */
-    public $table = 'app_division_ms';
+    public $table = 'prod_app_division_ms';
     /**
      * Summary of primaryKey
      * @var string

@@ -22,7 +22,7 @@ use App\Enums\DataStatus;
  */
 class AppDivisionM extends Model
 {
-    protected $table = 'app_division_ms';
+    protected $table = 'prod_app_division_ms';
     protected $primaryKey = 'division_id';
     public $timestamps = false;
 

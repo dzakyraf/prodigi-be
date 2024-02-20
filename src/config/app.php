@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
+
 return [
 
     /*
@@ -168,6 +169,8 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        ZanySoft\Zip\ZipServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class
     ])->toArray(),
 
     /*
@@ -183,6 +186,8 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
+        'Telegram' => Telegram\Bot\Laravel\Facades\Telegram::class,
+        'Zip' => ZanySoft\Zip\Facades\Zip::class,
     ])->toArray(),
 
 ];

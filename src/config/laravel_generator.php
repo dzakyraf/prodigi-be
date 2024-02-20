@@ -205,7 +205,13 @@ return [
 
     'from_table' => [
 
-        'doctrine_mappings' => [],
+        'doctrine_mappings' => [
+            'enum' => 'string',
+            'approval_status' => 'string',
+            'data_status' => 'string',
+            'name' => 'string',
+            '_int4' => 'string'
+        ],
     ],
 
 ];

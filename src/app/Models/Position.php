@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Enums\DataStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Position extends Model
 {
     use SoftDeletes;
-    public $table = 'app_position_ms';
+    public $table = 'prod_user_position_ms';
     protected $primaryKey = 'position_id';
 
     public $fillable = [

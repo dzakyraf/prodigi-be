@@ -1,5 +1,6 @@
 <?php
 
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,9 +15,26 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('email.notification',[
+        'status' => 'info',
+        'procurement_title' => "HELLO",
+        'nodin' => "NODIN",
+        'title' => 'Pengajuan Berhasil Dibuat',
+        'messages' => 'Pengajuan Anda Sudah diteruskan untuk di approval',
+    ]);
 });
 
-Route::get('/', function () {
-    return inertia('Welcome');
+Route::get('/d', function () {
+    $pdf = Pdf::loadView('pdf.persetujuan',[
+        'status' => 'info',
+        'procurement_title' => "HELLO",
+        'nodin' => "NODIN",
+        'title' => 'Pengajuan Berhasil Dibuat',
+        'messages' => 'Pengajuan Anda Sudah diteruskan untuk di approval',
+    ]);
+    return $pdf->download('invoice.pdf');
 });
+
+// Route::get('/', function () {
+//     return inertia('Welcome');
+// });
